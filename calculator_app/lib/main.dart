@@ -35,23 +35,34 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
       } else if (value == 'C') {
         input = '';
         result = '';
+      } else if (value == '.') {
+        // Prevent multiple decimals in a single number
+        if (_canAddDecimal()) {
+          input += value;
+        }
       } else {
         input += value;
       }
     });
   }
 
+  bool _canAddDecimal() {
+    // Split by operators and check the last number for an existing decimal point
+    List<String> parts = input.split(RegExp(r'[\+\-\*/]'));
+    String lastPart = parts.isNotEmpty ? parts.last : '';
+
+    return !lastPart.contains('.');
+  }
+
   String _calculateResult(String input) {
     try {
-      // Check for division by zero
-      if (input.contains('/0')) {
-        return 'Cannot divide by zero';
-      }
+      if (input.contains('/0')) return 'Cannot divide by zero';
 
       Parser p = Parser();
       Expression exp = p.parse(input);
       ContextModel cm = ContextModel();
       double eval = exp.evaluate(EvaluationType.REAL, cm);
+
       return eval.toString();
     } catch (e) {
       return 'Error';
@@ -105,7 +116,8 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
               ['7', '8', '9', '/'],
               ['4', '5', '6', '*'],
               ['1', '2', '3', '-'],
-              ['C', '0', '=', '+'],
+              ['C', '0', '.', '='], // Added "." button
+              ['+',] // Separate row for "+" to align layout
             ].map((row) {
               return Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
