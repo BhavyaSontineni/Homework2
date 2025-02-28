@@ -43,6 +43,11 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   String _calculateResult(String input) {
     try {
+      // Check for division by zero
+      if (input.contains('/0')) {
+        return 'Cannot divide by zero';
+      }
+
       Parser p = Parser();
       Expression exp = p.parse(input);
       ContextModel cm = ContextModel();
